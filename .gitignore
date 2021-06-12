@@ -1,0 +1,9 @@
+result
+.nimble/
+.direnv/
+
+# Ignore binaries directly compiled from emacs during testing
+src/**/*
+!src/**/
+!src/**/*.*
+dst
