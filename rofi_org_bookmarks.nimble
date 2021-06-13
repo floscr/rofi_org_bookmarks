@@ -1,8 +1,8 @@
 # Package
 
-version       = "0.1.0"
+version       = "1.0.0"
 author        = "Florian Schroedl"
-description   = "A new awesome nimble package"
+description   = "Search bookmarks saved in org documents with rofi"
 license       = "MIT"
 srcDir        = "src"
 bin           = @["rofi_org_bookmarks"]
@@ -14,7 +14,6 @@ binDir        = "./dst"
 requires "nim >= 1.4.4"
 requires "nimfp >= 0.4.5"
 requires "cligen >= 1.5.4"
-requires "tempfile >= 0.1.7"
 
 # Tasks
 

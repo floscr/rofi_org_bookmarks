@@ -1,5 +1,5 @@
 {
-  description = "A simple example of managing a project with a flake";
+  description = "Search bookmarks saved in org documents with rofi";
 
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
   inputs.nimble.url = "github:floscr/flake-nimble";
@@ -10,10 +10,6 @@
       let pkgs = nixpkgs.legacyPackages.${system};
           nimpkgs = nimble.packages.${system};
           buildInputs = with pkgs; [
-            imagemagick
-            ocrmypdf
-            scantailor
-            qpdf
           ];
       in rec {
         packages.rofi_org_bookmarks = pkgs.stdenv.mkDerivation {
@@ -36,12 +32,10 @@
                 --verbosity:0 \
                 --hint[Processing]:off \
                 --excessiveStackTrace:on \
-                -p:${ocrmypdf}/bin \
                 -p:${nimpkgs.cligen}/src \
                 -p:${nimpkgs.nimboost}/src \
                 -p:${nimpkgs.classy}/src \
                 -p:${nimpkgs.nimfp}/src \
-                -p:${nimpkgs.tempfile}/src \
                 --out:$TMPDIR/rofi_org_bookmarks \
                 ./src/rofi_org_bookmarks.nim
           '';
