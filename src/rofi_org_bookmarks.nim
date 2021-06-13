@@ -5,8 +5,7 @@ import strformat
 
 const FILE = "~/Documents/Org/Bookmarks/bookmarks.org"
 
-proc cli(file=FILE): void =
-
+proc rofi_org_bookmarks(file=FILE): void =
   let f = file.expandTilde
   if not f.fileExists:
     echo &"Error: Passed file \"{file}\" does not exist."
@@ -17,6 +16,6 @@ proc cli(file=FILE): void =
       file: f,
   ))
 
-dispatch(cli, help = {
+dispatch(rofi_org_bookmarks, help = {
   "file": """The file locations of your bookmarks.org""",
 })

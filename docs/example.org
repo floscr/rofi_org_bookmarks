@@ -2,14 +2,12 @@
 
 * Bookmarks
 
-** Emacs Piper | Sequential file editing with steps :EMACS:PACKAGE:PRODUCTIVITY:TOOL:
+** Rofi | A windows switcher :LINUX:CLI:TOOL:
 :PROPERTIES:
-:URL:      https://gitlab.com/howardabrams/emacs-piper
-:CREATED:  [2021-03-31 Wed 15:55]
+:URL:      https://github.com/davatorium/rofi
 :END:
 
-** ellie/atuin: Magical shell history :SHELL:TOOL:
+** Rofi Org Bookmarks Searcher :LINUX:CLI:ORG_MODE:TOOL:
 :PROPERTIES:
-:URL: https://github.com/ellie/atuin
-:CREATED: [2021-06-01 Tue 15:31]
+:URL: https://github.com/floscr/rofi_org_bookmarks
 :END:

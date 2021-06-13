@@ -1,3 +1,12 @@
 #+TITLE: Rofi Org Bookmarks
 
-Search bookmarks saved in org documents with rofi
+Search bookmarks saved in org documents with [[https://github.com/davatorium/rofi][rofi]]
+
+#+begin_src
+Usage:
+  rofi_org_bookmarks [optional-params]
+Options:
+  -h, --help                                                        print this cligen-erated help
+  --help-syntax                                                     advanced: prepend,plurals,..
+  -f=, --file=   string  "~/Documents/Org/Bookmarks/bookmarks.org"  The file locations of your bookmarks.org
+#+end_src
