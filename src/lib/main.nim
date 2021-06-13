@@ -7,7 +7,11 @@ import strutils
 import sugar
 import utils
 
-const FILE = "~/Documents/Org/Bookmarks/bookmarks.org"
+type
+  Config* = ref object
+    file*: string
+    prettyPrint*: bool
+    reverse*: bool
 
 proc parseTags*(line: string): (string, Option[string]) =
   if not line.endsWith(":"):
@@ -36,8 +40,8 @@ proc prepareLine(x: string): string =
     .replace("\"", "\\\"")
     .replace("&", "&amp;")
 
-proc readHeadlineItems(file = FILE): (seq[string], seq[string]) =
-  let strm = newFileStream(file.expandTilde, fmRead, 1)
+proc readHeadlineItems(cfg: Config): (seq[string], seq[string]) =
+  let strm = newFileStream(cfg.file, fmRead, 1)
   var line = ""
 
   var titles: seq[string] = @[]
@@ -63,8 +67,8 @@ proc readHeadlineItems(file = FILE): (seq[string], seq[string]) =
 
   (titles, urls)
 
-proc main*(): string =
-  let (titles, urls) = readHeadlineItems()
+proc main*(cfg: Config): string =
+  let (titles, urls) = readHeadlineItems(cfg)
 
   let rofiInput = titles.join("\n")
   let index = sh(&"echo \"{rofiInput}\" | rofi -i -levenshtein-sort -dmenu -p \"Run\" -format i -markup-rows")
