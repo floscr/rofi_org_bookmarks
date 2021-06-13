@@ -1,12 +1,11 @@
 import cligen
 import lib/main
 import os
-import osproc
 import strformat
 
 const FILE = "~/Documents/Org/Bookmarks/bookmarks.org"
 
-proc cli(file=FILE, prettyPrint=true, reverse=true): void =
+proc cli(file=FILE): void =
 
   let f = file.expandTilde
   if not f.fileExists:
@@ -15,13 +14,9 @@ proc cli(file=FILE, prettyPrint=true, reverse=true): void =
 
   echo main(
     Config(
-      file: file,
-      prettyPrint: prettyPrint,
-      reverse: reverse
+      file: f,
   ))
 
 dispatch(cli, help = {
   "file": """The file locations of your bookmarks.org""",
-  "prettyPrint": """Pretty print rofi lines""",
-  "reverse": """Reverse lines order""",
 })

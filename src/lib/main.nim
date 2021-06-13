@@ -10,8 +10,6 @@ import utils
 type
   Config* = ref object
     file*: string
-    prettyPrint*: bool
-    reverse*: bool
 
 proc parseTags*(line: string): (string, Option[string]) =
   if not line.endsWith(":"):
