@@ -2,6 +2,8 @@
 
 * Bookmarks
 
+Hint: Look at the raw version of this file
+
 ** Rofi | A windows switcher :LINUX:CLI:TOOL:
 :PROPERTIES:
 :URL:      https://github.com/davatorium/rofi
