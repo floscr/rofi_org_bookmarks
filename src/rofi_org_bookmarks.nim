@@ -17,5 +17,6 @@ proc rofi_org_bookmarks(file=FILE): void =
   ))
 
 dispatch(rofi_org_bookmarks, help = {
-  "file": """The file locations of your bookmarks.org""",
+  "file": """The file location of your bookmarks.org
+Should be an absolute path, ~ is resolved.""",
 })
