@@ -10,3 +10,5 @@ Options:
   --help-syntax                                                     advanced: prepend,plurals,..
   -f=, --file=   string  "~/Documents/Org/Bookmarks/bookmarks.org"  The file locations of your bookmarks.org
 #+end_src
+
+As an example how your bookmarks file should be formatted look at [[file:docs/example.org][the example bookmarks file]].
