@@ -9,6 +9,16 @@ import utils
 
 const FILE = "~/Documents/Org/Bookmarks/bookmarks.org"
 
+proc parseTags*(line: string): (string, Option[string]) =
+  if not line.endsWith(":"):
+    return (line, string.none)
+
+  let x = rsplit(line, " ", maxsplit = 1)
+  let left = x[0]
+  let right = x[1]
+
+  (left, right.some.notEmpty)
+
 proc readHeadlineItems(file = FILE): (seq[string], seq[string]) =
   let strm = newFileStream(file.expandTilde, fmRead, 1)
   var line = ""
