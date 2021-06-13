@@ -19,6 +19,23 @@ proc parseTags*(line: string): (string, Option[string]) =
 
   (left, right.some.notEmpty)
 
+proc markupLine*(x: (string, Option[string])): string =
+  let (headline, tags) = x
+
+  let markupTags = tags
+    .map((x: string) => &"<span gravity=\"east\" size=\"x-small\" font_style=\"italic\" foreground=\"#5c606b\"> {x}</span>")
+    .getOrElse("")
+  &"<span>{headline}</span>{markupTags}"
+
+proc prepareLine(x: string): string =
+  var line = x
+  line.removePrefix("** ")
+  line
+    .parseTags()
+    .markupLine()
+    .replace("\"", "\\\"")
+    .replace("&", "&amp;")
+
 proc readHeadlineItems(file = FILE): (seq[string], seq[string]) =
   let strm = newFileStream(file.expandTilde, fmRead, 1)
   var line = ""
@@ -31,8 +48,7 @@ proc readHeadlineItems(file = FILE): (seq[string], seq[string]) =
   if not isNil(strm):
     while strm.readLine(line):
       if line.startsWith("** "):
-        line.removePrefix("** ")
-        titles.insert(line.replace("\"", "\\\""), 0)
+        titles.insert(prepareLine(line), 0)
         # Keep the same index as title by inserting empty string when no url is defined
         urls.insert(url.getOrElse(""), 0)
         url = string.none
@@ -49,9 +65,9 @@ proc readHeadlineItems(file = FILE): (seq[string], seq[string]) =
 
 proc main*(): string =
   let (titles, urls) = readHeadlineItems()
-  echo urls.join("\n")
+
   let rofiInput = titles.join("\n")
-  let index = sh(&"echo \"{rofiInput}\" | rofi -i -levenshtein-sort -dmenu -p \"Run\" -format i")
+  let index = sh(&"echo \"{rofiInput}\" | rofi -i -levenshtein-sort -dmenu -p \"Run\" -format i -markup-rows")
 
   index
     .map((x) => x.replace("\n", ""))
