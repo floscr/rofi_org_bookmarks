@@ -1,0 +1,15 @@
+#+TITLE: Example
+
+* Bookmarks
+
+** Emacs Piper | Sequential file editing with steps :EMACS:PACKAGE:PRODUCTIVITY:TOOL:
+:PROPERTIES:
+:URL:      https://gitlab.com/howardabrams/emacs-piper
+:CREATED:  [2021-03-31 Wed 15:55]
+:END:
+
+** ellie/atuin: Magical shell history :SHELL:TOOL:
+:PROPERTIES:
+:URL: https://github.com/ellie/atuin
+:CREATED: [2021-06-01 Tue 15:31]
+:END:

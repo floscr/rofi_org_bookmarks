@@ -1,1 +1,3 @@
-#+TITLE: Readme
+#+TITLE: Rofi Org Bookmarks
+
+Search bookmarks saved in org documents with rofi
