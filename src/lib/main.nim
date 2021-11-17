@@ -7,6 +7,9 @@ import strutils
 import sugar
 import utils
 
+const TMP_FILE_NAME = "rofi_org_bookmarks"
+let cacheFile = getCacheDir().joinPath(TMP_FILE_NAME)
+
 type
   Config* = ref object
     file*: string
@@ -35,7 +38,6 @@ proc prepareLine(x: string): string =
   line
     .parseTags()
     .markupLine()
-    .replace("\"", "\\\"")
     .replace("&", "&amp;")
 
 proc readHeadlineItems(cfg: Config): (seq[string], seq[string]) =
@@ -69,7 +71,11 @@ proc main*(cfg: Config): string =
   let (titles, urls) = readHeadlineItems(cfg)
 
   let rofiInput = titles.join("\n")
-  let index = sh(&"echo \"{rofiInput}\" | rofi -i -levenshtein-sort -dmenu -p \"Run\" -format i -markup-rows")
+
+  # Write output to file, to prevent argument overflow in sub-shell when piping to rofi
+  writeFile(cacheFile, rofiInput)
+
+  let index = sh(&"cat {cacheFile} | rofi -i -levenshtein-sort -dmenu -p \"Run\" -format i -markup-rows")
 
   index
     .map((x) => x.replace("\n", ""))
