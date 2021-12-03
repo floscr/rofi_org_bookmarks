@@ -30,7 +30,6 @@
       inherit (nixos.lib) flatten;
     in
     rec {
-
       packages.rofi_org_bookmarks_backup =
         let
           pkgName = "rofi_org_bookmarks_backup";
@@ -50,7 +49,10 @@
             srcFile = "./src/${pkgName}.nim";
             dstName = pkgName;
             packages = flatten [
-              nimpkgs.argparse
+              (with nimpkgs; [
+                argparse
+                colorize
+              ])
               customNimPkgs.fusion
               customNimPkgs.nimfp
             ];

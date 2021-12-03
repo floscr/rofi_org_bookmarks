@@ -16,6 +16,7 @@ requires "zero_functional"
 requires "print"
 requires "fusion"
 requires "argparse"
+requires "colorize"
 
 import distros
 if detectOs(NixOS):

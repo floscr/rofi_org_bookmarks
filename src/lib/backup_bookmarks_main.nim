@@ -5,6 +5,7 @@ import std/strformat
 import std/strutils
 import fp/either
 import fp/maybe
+import colorize
 
 proc sh*(cmd: string, opts = {poStdErrToStdOut}): Either[string, string] =
   ## Execute a shell command and wrap it in an Either
@@ -33,11 +34,16 @@ const EMACS_INIT_FILE_PATH {.strdefine.} = ""
 let emacsInitFilePath* = EMACS_INIT_FILE_PATH
 .strDefineToMaybe()
 .map(x => x.joinPath("/lib.el"))
-.get()
+
+
+proc errorMsg(err: string, errType = "Error"): string =
+  &"""[{errType.fgRed()}]:
+{err}
+"""
 
 proc backupBookmark*(url: string): string =
-  sh(&"""{emacsBinPath} --batch -l {emacsInitFilePath} --eval '(rofi-org-bookmarks/runn "{url}")'""")
+  sh(&"""{emacsBinPath} --batch -l {emacsInitFilePath.get()} --eval '(rofi-org-bookmarks/runn "{url}")'""")
   .fold(
-    err => &"Error: {err}",
+    err => err.errorMsg(),
     x => x,
   )
