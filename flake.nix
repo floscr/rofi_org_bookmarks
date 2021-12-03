@@ -32,6 +32,7 @@
     rec {
       packages.rofi_org_bookmarks_backup =
         let
+          linguist = pkgs.callPackage ./nix/packages/linguist { };
           pkgName = "rofi_org_bookmarks_backup";
         in
         pkgs.stdenv.mkDerivation {
@@ -41,6 +42,7 @@
           nativeBuildInputs = with pkgs; [
             nim
             customEmacs
+            linguist
           ];
 
           buildInputs = buildInputs;
@@ -57,6 +59,7 @@
               customNimPkgs.nimfp
             ];
             extraLines = [
+              ''-d:LINGUIST_BIN_PATH="${linguist}/bin/linguist"''
               ''-d:EMACS_BIN_PATH="${customEmacs}/bin/emacs"''
               ''-d:EMACS_INIT_FILE_PATH="${placeholder "out"}"''
               ""

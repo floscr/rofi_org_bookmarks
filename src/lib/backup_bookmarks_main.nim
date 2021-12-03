@@ -30,11 +30,15 @@ let emacsBinPath* = EMACS_BIN_PATH
 .strDefineToMaybe()
 .getOrElse("emacs")
 
+const LINGUIST_BIN_PATH {.strdefine.} = ""
+let linguistBinPath* = LINGUIST_BIN_PATH
+.strDefineToMaybe()
+.getOrElse("linguist")
+
 const EMACS_INIT_FILE_PATH {.strdefine.} = ""
 let emacsInitFilePath* = EMACS_INIT_FILE_PATH
 .strDefineToMaybe()
 .map(x => x.joinPath("/lib.el"))
-
 
 proc errorMsg(err: string, errType = "Error"): string =
   &"""[{errType.fgRed()}]:
