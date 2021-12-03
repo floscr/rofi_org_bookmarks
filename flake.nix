@@ -19,6 +19,9 @@
         ];
       in
       rec {
+
+        packages.guesslang = pkgs.callPackage ./packages/guesslang.nix { };
+
         packages.rofi_org_bookmarks_backup =
           let
             pkgName = "rofi_org_bookmarks_backup";
