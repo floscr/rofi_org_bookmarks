@@ -15,16 +15,17 @@
     flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = nixpkgs.legacyPackages.${system};
-
       nimpkgs = nimble.packages.${system};
       customNimPkgs = import ./nix/packages/nimExtraPackages.nix { inherit pkgs; inherit nimpkgs; };
 
+      linguist = pkgs.callPackage ./nix/packages/linguist { };
       customEmacs = (pkgs.emacsPackagesFor pkgs.emacs).emacsWithPackages
         (epkgs: with epkgs.melpaStablePackages; [
           org-web-tools
         ]);
       buildInputs = with pkgs; [
         customEmacs
+        linguist
       ];
       utils = import ./nix/lib/nimBuildGenerator.nix;
       inherit (nixos.lib) flatten;
@@ -32,7 +33,6 @@
     rec {
       packages.rofi_org_bookmarks_backup =
         let
-          linguist = pkgs.callPackage ./nix/packages/linguist { };
           pkgName = "rofi_org_bookmarks_backup";
         in
         pkgs.stdenv.mkDerivation {

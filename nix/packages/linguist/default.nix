@@ -21,10 +21,12 @@ stdenv.mkDerivation {
     sha256 = "Jv6DDof33hJF0q/6LyCMeVNWI7fvknyZ8dTLrAIR7pQ=";
   };
   buildInputs = with pkgs; [ gems ruby libxml2 ];
+  dontPatchShebangs = "1";
   installPhase = ''
     mkdir -p $out/{bin,share/linguist}
 
-    cp -r {bin,docs,ext,lib,script,tools,vendor} $out/share/linguist
+    set dontPatchShebangs=1
+    cp -r * $out/share
 
     # set the default db path, unfortunately setting to /tmp does not seem to work
     # sed -i 's#db_file: .*#db_file: "/tmp/linguist.db"#' $out/share/linguist/config.yaml
@@ -32,7 +34,8 @@ stdenv.mkDerivation {
     bin=$out/bin/linguist
     cat > $bin <<EOF
 #! ${stdenv.shell} -e
-exec ${gems}/bin/bundle exec ${ruby}/bin/ruby $out/share/linguist/bin/github-linguist "\$@"
+exec ${gems}/bin/bundle exec ${ruby}/bin/ruby $out/share/bin/github-linguist "\$@"
+
 EOF
     chmod +x $bin
   '';
