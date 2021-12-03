@@ -15,10 +15,10 @@
     flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = nixpkgs.legacyPackages.${system};
+      linguist = pkgs.callPackage ./nix/packages/linguist { };
       nimpkgs = nimble.packages.${system};
       customNimPkgs = import ./nix/packages/nimExtraPackages.nix { inherit pkgs; inherit nimpkgs; };
 
-      linguist = pkgs.callPackage ./nix/packages/linguist { };
       customEmacs = (pkgs.emacsPackagesFor pkgs.emacs).emacsWithPackages
         (epkgs: with epkgs.melpaStablePackages; [
           org-web-tools

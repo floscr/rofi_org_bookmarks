@@ -1,6 +1,7 @@
 { pkgs, stdenv, lib, bundlerEnv, ruby, fetchFromGitHub, nodejs }:
 # nix-shell --command "bundler install && bundix" in the clone, copy gemset.nix, Gemfile and Gemfile.lock
 let
+  json = ./samples.json;
   gems = bundlerEnv {
     name = "linguist-env";
     inherit ruby;
@@ -22,16 +23,15 @@ stdenv.mkDerivation {
   };
   buildInputs = with pkgs; [ gems ruby libxml2 ];
   dontPatchShebangs = "1";
+  buildPhase = "cp ${json} $TMPDIR/samples.json";
   installPhase = ''
     mkdir -p $out/{bin,share/linguist}
 
-    set dontPatchShebangs=1
     cp -r * $out/share
-
-    # set the default db path, unfortunately setting to /tmp does not seem to work
-    # sed -i 's#db_file: .*#db_file: "/tmp/linguist.db"#' $out/share/linguist/config.yaml
+    cp $TMPDIR/samples.json $out/share/lib/linguist/samples.json
 
     bin=$out/bin/linguist
+
     cat > $bin <<EOF
 #! ${stdenv.shell} -e
 exec ${gems}/bin/bundle exec ${ruby}/bin/ruby $out/share/bin/github-linguist "\$@"
