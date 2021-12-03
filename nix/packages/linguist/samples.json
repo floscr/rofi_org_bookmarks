@@ -140,8 +140,7 @@
     ], 
     "Shell": [
       ".bash", 
-      ".script!", 
-      ".sh", 
+      ".sh",
       ".zsh"
     ], 
     "AppleScript": [
@@ -211,9 +210,8 @@
     ], 
     "PHP": [
       ".module", 
-      ".php", 
-      ".script!"
-    ], 
+      ".php"
+    ],
     "Coq": [
       ".v"
     ], 
@@ -221,9 +219,8 @@
       ".java"
     ], 
     "Scala": [
-      ".sbt", 
-      ".script!"
-    ], 
+      ".sbt"
+    ],
     "fish": [
       ".fish"
     ], 
@@ -233,7 +230,6 @@
       ".fcgi", 
       ".pl", 
       ".pm", 
-      ".script!", 
       ".t"
     ], 
     "Lua": [
@@ -271,9 +267,8 @@
       ".pluginspec", 
       ".rabl", 
       ".rake", 
-      ".rb", 
-      ".script!"
-    ], 
+      ".rb"
+    ],
     "SCSS": [
       ".scss"
     ], 
@@ -333,9 +328,8 @@
       ".cl"
     ], 
     "Nu": [
-      ".nu", 
-      ".script!"
-    ], 
+      ".nu"
+    ],
     "LFE": [
       ".lfe"
     ], 
@@ -389,9 +383,8 @@
       ".moon"
     ], 
     "R": [
-      ".R", 
-      ".script!"
-    ], 
+      ".R"
+    ],
     "Cuda": [
       ".cu", 
       ".cuh"
@@ -477,9 +470,8 @@
       ".nut"
     ], 
     "Python": [
-      ".py", 
-      ".script!"
-    ], 
+      ".py"
+    ],
     "Max": [
       ".mxt"
     ], 
@@ -525,9 +517,8 @@
       ".omgrofl"
     ], 
     "Racket": [
-      ".scrbl", 
-      ".script!"
-    ], 
+      ".scrbl"
+    ],
     "Haml": [
       ".haml"
     ], 

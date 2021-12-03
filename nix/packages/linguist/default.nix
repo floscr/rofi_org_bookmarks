@@ -34,7 +34,7 @@ stdenv.mkDerivation {
 
     cat > $bin <<EOF
 #! ${stdenv.shell} -e
-exec ${gems}/bin/bundle exec ${ruby}/bin/ruby $out/share/bin/github-linguist "\$@"
+RUBYOPT="-W0" exec ${gems}/bin/bundle exec ${ruby}/bin/ruby $out/share/bin/github-linguist "\$@"
 
 EOF
     chmod +x $bin
