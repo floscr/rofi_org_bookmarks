@@ -6,12 +6,14 @@ import ./lib/backup_bookmarks_main
 
 proc runCli(args = commandLineParams()): auto =
   var p = newParser:
-    option("--output")
+    option("-o", "--output", help = "The output file, forwards to pandocs -o option, so the extension defines the format.")
+    option("-t", "--title", help = "The title of the output file, default to output file name")
     arg("urls", nargs = -1)
     run:
       echo backupBookmarks(
         urls = opts.urls,
         output = opts.outputOpt,
+        title = opts.titleOpt,
       )
 
   try:

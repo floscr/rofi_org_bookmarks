@@ -102,7 +102,17 @@ proc backupBookmark*(url: string, env = defaultEnv): Either[string, string] =
   sh(&"""{env.paths.emacs} --batch -l {env.paths.emacsInitFilePath} --eval '(rofi-org-bookmarks/runn "{url}")'""")
   .map(cleanupOrg)
 
-proc convertDocs(srcPaths: seq[string], dstPath: string): Either[string, string] =
+proc convertDocs(
+  srcPaths: seq[string],
+  dstPath: string,
+  title: Option[string],
+): Either[string, string] =
+  let title = title
+  .convertMaybe()
+  .orElse(dstPath.splitFile[1].just())
+  .map(x => &" --metadata title=\"{x}\"")
+  .getOrElse("")
+
   srcPaths
   .map((x: string) => (
     let (cfile, path) = createTempFile("backup_bookmarks_file_", "_end.org")
@@ -113,9 +123,15 @@ proc convertDocs(srcPaths: seq[string], dstPath: string): Either[string, string]
   ))
   .join(" ")
   .right(string)
-  .flatMap((paths: string) => sh(&"""pandoc {paths} -o {dstPath}"""))
+  .flatMap((paths: string) => sh(&"""pandoc {paths} -o {dstPath}{title}"""))
 
-proc backupBookmarks*(urls: seq[string], output = none(string), env = defaultEnv): string =
+proc backupBookmarks*(
+  urls: seq[string],
+  output = none(string),
+  title = none(string),
+  env = defaultEnv
+): string =
+
   (@errors, @docs) := urls
   .asList()
   .foldLeft(
@@ -135,8 +151,12 @@ proc backupBookmarks*(urls: seq[string], output = none(string), env = defaultEnv
       .left(string)
     # Export docs to a file
     of ([all @srcPaths], Some(@dstPath), _):
-      convertDocs(srcPaths = srcPaths, dstPath = dstPath)
-      # .map(_ => &"Saved output to {dstPath}")
+      convertDocs(
+        srcPaths = srcPaths,
+        dstPath = dstPath,
+        title = title,
+      )
+      .map(xs => &"Saved output to {dstPath}\n\n{xs}")
     of ([all @docs], None(), _):
       docs
       .foldl(a & "\n" & b, "")
@@ -157,6 +177,4 @@ when isMainModule:
       linguist: linguistBinPath,
     )
   )
-  echo backupBookmarks(urls = @[
-    "https://xi-editor.io/docs/frontend-notes.html" "https://xi-editor.io/docs/frontend-protocol.html" "https://xi-editor.io/docs/plugin.html" "https://xi-editor.io/docs/config.html" "https://xi-editor.io/docs/crdt.html" "https://xi-editor.io/docs/crdt-details.html" "https://xi-editor.io/docs/fuchsia-ledger-crdts.html" "https://xi-editor.io/docs/rope_science_00.html" "https://xi-editor.io/docs/rope_science_01.html" "https://xi-editor.io/docs/rope_science_02.html" "https://xi-editor.io/docs/rope_science_03.html" "https://xi-editor.io/docs/rope_science_04.html" "https://xi-editor.io/docs/rope_science_05.html" "https://xi-editor.io/docs/rope_science_06.html" "https://xi-editor.io/docs/rope_science_08.html" "https://xi-editor.io/docs/rope_science_08a.html" "https://xi-editor.io/docs/rope_science_09.html" "https://xi-editor.io/docs/rope_science_10.html" "https://xi-editor.io/docs/rope_science_11.html" "https://xi-editor.io/docs/rope_science_12.html"
-  ], env = env, output = "/tmp/foo.epub".some)
+  echo backupBookmarks(urls = @["https://xi-editor.io/docs/frontend-notes.html"], env = env, output = "/tmp/foo.epub".some)
