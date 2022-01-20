@@ -1,7 +1,7 @@
 import osproc
 import strutils
 import osproc
-import fp/option
+import fp/maybe
 import fp/either
 import sugar
 
@@ -15,21 +15,7 @@ proc sh*(cmd: string, workingDir = ""): Either[string, string] =
     .strip
     .left(string)
 
-## Option
-
-proc bitap*[T](xs: Option[T], errFn: () -> void, succFn: T -> void): Option[T] =
-  if (xs.isDefined):
-    succFn(xs.get)
-  else:
-    errFn()
-  xs
-
-## Either
-
-proc tap*[E,A,B](e: Either[E,A], f: A -> B): Either[E,A] =
-  if e.isRight: discard f(e.get)
-  e
-
-proc log*[E,A](e: Either[E,A]): Either[E,A] =
-  echo $e
-  e
+proc strDefineToMaybe*(x: string): Maybe[string] =
+  x.just()
+  .notEmpty()
+  .filter(x => not x.defined())
