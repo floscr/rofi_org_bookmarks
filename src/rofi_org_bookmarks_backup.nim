@@ -9,6 +9,7 @@ proc runCli(args = commandLineParams()): auto =
     option("-o", "--output", help = "The output file, forwards to pandocs -o option, so the extension defines the format.")
     option("-t", "--title", help = "The title of the output file, default to output file name.")
     option("--scraper", default = some("readable"), choices = @["emacs", "readable"], help = "Choice of scraper to fetch the webpage.")
+    flag("--send-to-device", help = "Directly send to device")
     arg("urls", nargs = -1)
     run:
       echo backupBookmarks(
@@ -16,6 +17,7 @@ proc runCli(args = commandLineParams()): auto =
         output = opts.outputOpt,
         title = opts.titleOpt,
         scraper = opts.scraper,
+        sendToDevice = opts.sendToDevice,
       )
 
   try:

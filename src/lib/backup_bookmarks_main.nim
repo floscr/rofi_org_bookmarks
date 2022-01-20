@@ -8,6 +8,7 @@ import std/collections/sequtils
 import std/options
 import fp/either
 import fp/maybe
+import fp/trym
 import fp/list
 import colorize
 import tempfile
@@ -154,12 +155,22 @@ proc convertDocs(
   .right(string)
   .flatMap((paths: string) => sh(&"""pandoc {paths} -o {dstPath}{title}"""))
 
+proc copyToDevice(source: string, mountPoint = "/run/media/floscr/tolino"): bool =
+  case (fileExists(source), dirExists(mountPoint)):
+    of (true, true):
+      let (_, name, ext) = source.splitFile()
+      copyFile(source, mountPoint.joinPath(&"Books/Reader/{name}{ext}"))
+      removeFile(source)
+      true
+    else: false
+
 proc backupBookmarks*(
   urls: seq[string],
   output = none(string),
   title = none(string),
   scraper = "emacs",
-  env = defaultEnv
+  sendToDevice = false,
+  env = defaultEnv,
 ): string =
   (@errors, @docs) := urls
   .asList()
@@ -186,6 +197,14 @@ proc backupBookmarks*(
         title = title,
       )
       .map(xs => &"Saved output to {dstPath}\n\n{xs}")
+      # Copy directly to reader when flag was provided
+      .map(proc(x: string): string = (
+        if not sendToDevice: x
+        else:
+          discard copyToDevice(source = dstPath)
+          &"Copied file to e-reader!\n\n{x}"
+
+      ))
     of ([all @docs], None(), _):
       docs
       .foldl(a & "\n" & b.content, "")
@@ -212,4 +231,5 @@ when isMainModule:
     env = env,
     output = "/tmp/foo.epub".some,
     scraper = "readable",
+    sendToDevice = true,
   )
