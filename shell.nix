@@ -8,5 +8,6 @@ pkgs.mkShell {
   buildInputs = with pkgs; buildInputs ++ [
     nim
     nimlsp
+    nodePackages.readability-cli
   ];
 }

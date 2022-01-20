@@ -17,12 +17,19 @@ import ./utils
 {.experimental: "caseStmtMacros".}
 
 type
-  EnvPaths* = ref object {.requiresInit.}
+  EnvPaths* {.requiresInit.} = ref object
     emacs*: string
     emacsInitFilePath*: string
     linguist*: string
-  Env* = ref object {.requiresInit.}
+    readable*: string
+  Env* {.requiresInit.} = ref object
     paths*: EnvPaths
+  DocKind = enum
+    orgDoc
+    htmlDoc
+  Doc {.requiresInit.} = ref object
+    content: string
+    kind: DocKind
 
 proc `$`*(x: EnvPaths): string =
   &"""EnvPaths(
@@ -46,6 +53,11 @@ let linguistBinPath* = LINGUIST_BIN_PATH
 .strDefineToMaybe()
 .getOrElse("linguist")
 
+const READABLE_BIN_PATH {.strdefine.} = ""
+let readableBinPath* = READABLE_BIN_PATH
+.strDefineToMaybe()
+.getOrElse("readable")
+
 const EMACS_INIT_FILE_PATH {.strdefine.} = ""
 let emacsInitFilePath* = EMACS_INIT_FILE_PATH
 .strDefineToMaybe()
@@ -56,6 +68,7 @@ let defaultEnv = Env(
     emacs: emacsBinPath,
     emacsInitFilePath: emacsInitFilePath.getOrElse(""),
     linguist: linguistBinPath,
+    readable: readableBinPath,
   ),
 )
 
@@ -98,12 +111,23 @@ proc cleanupOrg*(doc: string): string =
   blocks.join("\n")
 
 
-proc backupBookmark*(url: string, env = defaultEnv): Either[string, string] =
-  sh(&"""{env.paths.emacs} --batch -l {env.paths.emacsInitFilePath} --eval '(rofi-org-bookmarks/runn "{url}")'""")
-  .map(cleanupOrg)
+proc backupBookmark*(url: string, scraper: string, env = defaultEnv): Either[string, Doc] =
+  case scraper:
+    of "readable":
+      sh(&"""{env.paths.readable} "{url}" --quiet""")
+      .map(content => Doc(
+        kind: htmlDoc,
+        content: content,
+      ))
+    else:
+      sh(&"""{env.paths.emacs} --batch -l {env.paths.emacsInitFilePath} --eval '(rofi-org-bookmarks/runn "{url}")'""")
+      .map(content => Doc(
+        kind: orgDoc,
+        content: cleanupOrg(content),
+      ))
 
 proc convertDocs(
-  srcPaths: seq[string],
+  docs: seq[Doc],
   dstPath: string,
   title: Option[string],
 ): Either[string, string] =
@@ -113,10 +137,15 @@ proc convertDocs(
   .map(x => &" --metadata title=\"{x}\"")
   .getOrElse("")
 
-  srcPaths
-  .map((x: string) => (
-    let (cfile, path) = createTempFile("backup_bookmarks_file_", "_end.org")
-    cfile.write(x)
+  docs
+  .map((x: Doc) => (
+    let extension =
+      case x.kind:
+        of orgDoc: "org"
+        of htmlDoc: "html"
+
+    let (cfile, path) = createTempFile("backup_bookmarks_file_", &"_end.{extension}")
+    cfile.write(x.content)
     cfile.setFilePos(0)
     cfile.close()
     path
@@ -129,14 +158,14 @@ proc backupBookmarks*(
   urls: seq[string],
   output = none(string),
   title = none(string),
+  scraper = "emacs",
   env = defaultEnv
 ): string =
-
   (@errors, @docs) := urls
   .asList()
   .foldLeft(
-    (newSeq[string](), newSeq[string]()),
-    (acc, cur) => backupBookmark(cur, env = env)
+    (newSeq[string](), newSeq[Doc]()),
+    (acc, cur) => backupBookmark(url = cur, scraper = scraper, env = env)
     .fold(
       err => (acc[0] & err, acc[1]),
       docs => (acc[0], acc[1] & docs),
@@ -150,16 +179,16 @@ proc backupBookmarks*(
       .foldl(a & "\n" & b, "Errors found: \n")
       .left(string)
     # Export docs to a file
-    of ([all @srcPaths], Some(@dstPath), _):
+    of ([all @docs], Some(@dstPath), _):
       convertDocs(
-        srcPaths = srcPaths,
+        docs = docs,
         dstPath = dstPath,
         title = title,
       )
       .map(xs => &"Saved output to {dstPath}\n\n{xs}")
     of ([all @docs], None(), _):
       docs
-      .foldl(a & "\n" & b, "")
+      .foldl(a & "\n" & b.content, "")
       .right(string)
     else:
       "".left(string)
@@ -175,6 +204,12 @@ when isMainModule:
       emacs: emacsBinPath,
       emacsInitFilePath: currentSourcePath().splitFile()[0].joinPath("../rofi_org_bookmarks_backup.el"),
       linguist: linguistBinPath,
+      readable: readableBinPath,
     )
   )
-  echo backupBookmarks(urls = @["https://xi-editor.io/docs/frontend-notes.html"], env = env, output = "/tmp/foo.epub".some)
+  echo backupBookmarks(
+    urls = @["https://xi-editor.io/docs/frontend-notes.html"],
+    env = env,
+    output = "/tmp/foo.epub".some,
+    scraper = "readable",
+  )

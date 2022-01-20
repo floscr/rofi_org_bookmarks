@@ -43,6 +43,7 @@
             nim
             customEmacs
             linguist
+            nodePackages.readability-cli
           ];
 
           buildInputs = buildInputs;
@@ -60,6 +61,7 @@
               customNimPkgs.nimfp
             ];
             extraLines = [
+              ''-d:READABLE_BIN_PATH="${pkgs.nodePackages.readability-cli}/bin/readable"''
               ''-d:LINGUIST_BIN_PATH="${linguist}/bin/linguist"''
               ''-d:EMACS_BIN_PATH="${customEmacs}/bin/emacs"''
               ''-d:EMACS_INIT_FILE_PATH="${placeholder "out"}"''
