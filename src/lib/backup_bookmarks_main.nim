@@ -153,7 +153,17 @@ proc convertDocs(
   ))
   .join(" ")
   .right(string)
-  .flatMap((paths: string) => sh(&"""pandoc {paths} -o {dstPath}{title}"""))
+  .flatMap((paths: string) => sh(&"""pandoc {paths} --wrap=none -o {dstPath}{title}"""))
+  .map((paths: string) => (
+    case dstPath.splitFile[2]:
+      of "org":
+        # Clean up org file
+        let dst = getCurrentDir().joinPath(dstPath)
+        let f = readFile(dstPath)
+        writeFile(dstPath, f.unindent())
+
+    paths
+  ))
 
 proc copyToDevice(source: string, mountPoint = "/run/media/floscr/tolino"): bool =
   case (fileExists(source), dirExists(mountPoint)):
