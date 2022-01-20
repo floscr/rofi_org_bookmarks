@@ -15,7 +15,7 @@ requires "cligen >= 1.5.4"
 requires "zero_functional"
 requires "print"
 requires "fusion"
-requires "argparse"
+requires "argparse >= 3.0.0"
 requires "colorize"
 
 import distros

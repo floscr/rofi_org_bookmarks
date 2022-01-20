@@ -20,11 +20,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1622481822,
-        "narHash": "sha256-Cc7WmnQ1GQSdhlRunmxlGBSNikgiNpxWjs60Mvgg2Ps=",
+        "lastModified": 1644517745,
+        "narHash": "sha256-sS9KXluD8J6N9XxkVuDMbIq9fHJ0h43+Pi7R+mzBT1E=",
         "owner": "floscr",
         "repo": "flake-nimble",
-        "rev": "7892251d6d0e5c6380e5fb04d8d79249b9e340c9",
+        "rev": "9c08a3a3305b0efd91cbdb708c0c6c3b4e9033da",
         "type": "github"
       },
       "original": {
