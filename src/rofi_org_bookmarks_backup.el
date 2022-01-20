@@ -4,4 +4,4 @@
   (->>
    (org-web-tools--url-as-readable-org url)
    (substring-no-properties)
-   (message "foo %s")))
+   (message "%s")))
