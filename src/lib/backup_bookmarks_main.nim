@@ -37,8 +37,6 @@ let linguistBinPath* = LINGUIST_BIN_PATH
 .strDefineToMaybe()
 .getOrElse("linguist")
 
-echo linguistBinPath
-
 const EMACS_INIT_FILE_PATH {.strdefine.} = ""
 let emacsInitFilePath* = EMACS_INIT_FILE_PATH
 .strDefineToMaybe()
@@ -67,9 +65,9 @@ proc cleanupOrg*(doc: string): string =
       cfile.write(xs.join("\n"))
       cfile.setFilePos 0
 
-      let format = sh(&"{linguistBinPath} {path}")
-      echo path
-      echo format
+      # let format = sh(&"{linguistBinPath} {path}")
+      # echo path
+      # echo format
 
       blocks = blocks.concat(xs)
       codeBlock = nothing(newSeq[string]())
