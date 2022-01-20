@@ -54,6 +54,7 @@
               (with nimpkgs; [
                 argparse
                 colorize
+                tempfile
               ])
               customNimPkgs.fusion
               customNimPkgs.nimfp

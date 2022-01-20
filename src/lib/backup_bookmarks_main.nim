@@ -5,9 +5,36 @@ import std/strformat
 import std/tempfiles
 import std/strutils
 import std/collections/sequtils
+import std/options
 import fp/either
 import fp/maybe
+import fp/list
 import colorize
+import tempfile
+import fusion/matching
+import ./utils
+
+{.experimental: "caseStmtMacros".}
+
+type
+  EnvPaths* = ref object {.requiresInit.}
+    emacs*: string
+    emacsInitFilePath*: string
+    linguist*: string
+  Env* = ref object {.requiresInit.}
+    paths*: EnvPaths
+
+proc `$`*(x: EnvPaths): string =
+  &"""EnvPaths(
+  emacs: {x.emacs},
+  emacsInitFilePath: {x.emacsInitFilePath},
+  linguist: {x.linguist},
+)"""
+
+proc `$`*(x: Env): string =
+  &"""Env(
+  paths: {x.paths}
+)"""
 
 const EMACS_BIN_PATH {.strdefine.} = ""
 let emacsBinPath* = EMACS_BIN_PATH
@@ -23,6 +50,14 @@ const EMACS_INIT_FILE_PATH {.strdefine.} = ""
 let emacsInitFilePath* = EMACS_INIT_FILE_PATH
 .strDefineToMaybe()
 .map(x => x.joinPath("/lib.el"))
+
+let defaultEnv = Env(
+  paths: EnvPaths(
+    emacs: emacsBinPath,
+    emacsInitFilePath: emacsInitFilePath.getOrElse(""),
+    linguist: linguistBinPath,
+  ),
+)
 
 proc errorMsg(err: string, errType = "Error"): string =
   &"""[{errType.fgRed()}]:
@@ -63,32 +98,65 @@ proc cleanupOrg*(doc: string): string =
   blocks.join("\n")
 
 
-proc backupBookmark*(url: string): string =
-  sh(&"""{emacsBinPath} --batch -l {emacsInitFilePath.get()} --eval '(rofi-org-bookmarks/runn "{url}")'""")
+proc backupBookmark*(url: string, env = defaultEnv): Either[string, string] =
+  sh(&"""{env.paths.emacs} --batch -l {env.paths.emacsInitFilePath} --eval '(rofi-org-bookmarks/runn "{url}")'""")
   .map(cleanupOrg)
-  .fold(
-    err => err.errorMsg(),
-    x => x,
+
+proc convertDocs(srcPaths: seq[string], dstPath: string): Either[string, string] =
+  srcPaths
+  .map((x: string) => (
+    let (cfile, path) = createTempFile("backup_bookmarks_file_", "_end.org")
+    cfile.write(x)
+    cfile.setFilePos(0)
+    cfile.close()
+    path
+  ))
+  .join(" ")
+  .right(string)
+  .flatMap((paths: string) => sh(&"""pandoc {paths} -o {dstPath}"""))
+
+proc backupBookmarks*(urls: seq[string], output = none(string), env = defaultEnv): string =
+  (@errors, @docs) := urls
+  .asList()
+  .foldLeft(
+    (newSeq[string](), newSeq[string]()),
+    (acc, cur) => backupBookmark(cur, env = env)
+    .fold(
+      err => (acc[0] & err, acc[1]),
+      docs => (acc[0], acc[1] & docs),
+    )
+  )
+
+  let output = case (docs, output, errors):
+    # No docs have been converted
+    of ([], _, [all @errs]):
+      errs
+      .foldl(a & "\n" & b, "Errors found: \n")
+      .left(string)
+    # Export docs to a file
+    of ([all @srcPaths], Some(@dstPath), _):
+      convertDocs(srcPaths = srcPaths, dstPath = dstPath)
+      # .map(_ => &"Saved output to {dstPath}")
+    of ([all @docs], None(), _):
+      docs
+      .foldl(a & "\n" & b, "")
+      .right(string)
+    else:
+      "".left(string)
+
+  output.fold(
+    err => $err,
+    msg => msg,
   )
 
 when isMainModule:
-  let content = """
-**** The Code
-
-  It uses [[https://github.com/joaotavora/yasnippet][yasnippet]] to insert the code block. [[https://github.com/joaotavora/yasnippet][Yasnippet]] can execute =emacs-lisp= code in it's own snippets, so here we call the function =(+yas/org-last-src-lang)= which finds the nearest src block, and takes it's language type ✨.
-
-  #+begin_example
-     # -*- mode: snippet -*-
-    # name: #+begin_src
-    # uuid: src
-    # key: <
-    # --
-    \\#+begin_src ${1:`(+yas/org-last-src-lang)`}
-    `%`$0
-    \\#+end_src
-  #+end_example
-
-  You've got to remove the =\\= escaping characters in the code block above, until I figure out how to include escaping in source blocks with [[https://orga.js.org/][orga]] 🥲
-"""
-
-  discard cleanupOrg(content)
+  let env = Env(
+    paths: EnvPaths(
+      emacs: emacsBinPath,
+      emacsInitFilePath: currentSourcePath().splitFile()[0].joinPath("../rofi_org_bookmarks_backup.el"),
+      linguist: linguistBinPath,
+    )
+  )
+  echo backupBookmarks(urls = @[
+    "https://xi-editor.io/docs/frontend-notes.html" "https://xi-editor.io/docs/frontend-protocol.html" "https://xi-editor.io/docs/plugin.html" "https://xi-editor.io/docs/config.html" "https://xi-editor.io/docs/crdt.html" "https://xi-editor.io/docs/crdt-details.html" "https://xi-editor.io/docs/fuchsia-ledger-crdts.html" "https://xi-editor.io/docs/rope_science_00.html" "https://xi-editor.io/docs/rope_science_01.html" "https://xi-editor.io/docs/rope_science_02.html" "https://xi-editor.io/docs/rope_science_03.html" "https://xi-editor.io/docs/rope_science_04.html" "https://xi-editor.io/docs/rope_science_05.html" "https://xi-editor.io/docs/rope_science_06.html" "https://xi-editor.io/docs/rope_science_08.html" "https://xi-editor.io/docs/rope_science_08a.html" "https://xi-editor.io/docs/rope_science_09.html" "https://xi-editor.io/docs/rope_science_10.html" "https://xi-editor.io/docs/rope_science_11.html" "https://xi-editor.io/docs/rope_science_12.html"
+  ], env = env, output = "/tmp/foo.epub".some)

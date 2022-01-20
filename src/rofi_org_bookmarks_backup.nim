@@ -1,3 +1,4 @@
+import std/collections/sequtils
 import argparse
 import ./lib/backup_bookmarks_main
 
@@ -5,9 +6,13 @@ import ./lib/backup_bookmarks_main
 
 proc runCli(args = commandLineParams()): auto =
   var p = newParser:
-    arg("url")
+    option("--output")
+    arg("urls", nargs = -1)
     run:
-      echo backupBookmark(opts.url)
+      echo backupBookmarks(
+        urls = opts.urls,
+        output = opts.outputOpt,
+      )
 
   try:
     if args.len == 0:

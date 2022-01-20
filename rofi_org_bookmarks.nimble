@@ -17,6 +17,7 @@ requires "print"
 requires "fusion"
 requires "argparse >= 3.0.0"
 requires "colorize"
+requires "tempfile"
 
 import distros
 if detectOs(NixOS):
